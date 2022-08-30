@@ -6,7 +6,7 @@ public class Ball : MonoBehaviour
     #region Constants
 
     private const bool ANGLE_INACCURACIES = true;
-    private const float INAC_RANGE = 10f;
+    private const float INAC_RANGE = 0.25f;
 
     #endregion
 
@@ -14,51 +14,45 @@ public class Ball : MonoBehaviour
 
     private Rigidbody rb;
 
-    private float ballSpeed = 400f;
+    private float initialSpeed = 500f;
 
     [SerializeField]
     private AudioClip[] clips;
+
+    private Vector3 lastVel;
 
     #endregion
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        rb.AddForce(transform.right * initialSpeed);
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
-        Vector3 vel = ballSpeed * Time.fixedDeltaTime * Vector3.right;
-        //transform.Translate(vel, Space.Self);
-        //rb.MovePosition(rb.position + vel);
-        rb.velocity = transform.TransformDirection(vel);
+        lastVel = rb.velocity;
     }
+
+    //private void FixedUpdate()
+    //{
+    //    Vector3 vel = ballSpeed * Time.fixedDeltaTime * Vector3.right;
+    //    transform.Translate(vel, Space.Self);
+    //    rb.MovePosition(rb.position + vel);
+    //    rb.velocity = transform.TransformDirection(vel);
+    //}
 
     private void OnCollisionEnter(Collision collision)
     {
         Vector3 colNormal = collision.GetContact(0).normal;
+        float speed = lastVel.magnitude;
+        Vector3 direction = Vector3.Reflect(lastVel.normalized, colNormal) + new Vector3(Random.Range(-INAC_RANGE, INAC_RANGE), Random.Range(-INAC_RANGE, INAC_RANGE), 0f);
 
-        float offset = 0f;
-
-        if (ANGLE_INACCURACIES)
-        {
-            offset = Random.Range(-INAC_RANGE, INAC_RANGE);
-        }
-
-        if (colNormal == Vector3.down || colNormal == Vector3.up)
-        {
-            float newAngle = -transform.rotation.eulerAngles.z + offset;
-            transform.rotation = Quaternion.Euler(0f, 0f, newAngle);
-        }
-        else if (colNormal == Vector3.right || colNormal == Vector3.left)
-        {
-            float newAngle = (180f - transform.rotation.eulerAngles.z) + offset;
-            transform.rotation = Quaternion.Euler(0f, 0f, newAngle);
-        }
+        rb.velocity = direction * speed;
 
         if (collision.collider.CompareTag("Paddle"))
         {
-            ballSpeed += 75f;
+            rb.velocity *= 1.05f;
         }
 
         AudioSource.PlayClipAtPoint(clips[0], new Vector3(0f, 0f, -10f));
@@ -68,10 +62,12 @@ public class Ball : MonoBehaviour
     {
         if (other.name == "Goal1")
         {
+            AudioSource.PlayClipAtPoint(clips[1], new Vector3(0f, 0f, -10f));
             Debug.Log("goal for left!");
         }
         else if (other.name == "Goal2")
         {
+            AudioSource.PlayClipAtPoint(clips[1], new Vector3(0f, 0f, -10f));
             Debug.Log("goal for right!");
         }
     }

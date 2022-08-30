@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -5,14 +6,16 @@ public class Ball : MonoBehaviour
 {
     #region Constants
 
-    private const bool ANGLE_INACCURACIES = true;
-    private const float INAC_RANGE = 0.25f;
+    private const float SERVE_TIME = 1f;
 
     #endregion
 
     #region Variables
 
+    public bool rightServing = true;
+
     private Rigidbody rb;
+    private GameManager gameManager;
 
     private float initialSpeed = 500f;
 
@@ -25,34 +28,45 @@ public class Ball : MonoBehaviour
 
     private void Awake()
     {
+        gameManager = FindObjectOfType<GameManager>();
         rb = GetComponent<Rigidbody>();
-        rb.AddForce(transform.right * initialSpeed);
-    }
 
+        StartCoroutine(ServeBall());
+    }
     private void Update()
     {
         lastVel = rb.velocity;
     }
 
-    //private void FixedUpdate()
-    //{
-    //    Vector3 vel = ballSpeed * Time.fixedDeltaTime * Vector3.right;
-    //    transform.Translate(vel, Space.Self);
-    //    rb.MovePosition(rb.position + vel);
-    //    rb.velocity = transform.TransformDirection(vel);
-    //}
+    private IEnumerator ServeBall()
+    {
+        yield return new WaitForSeconds(SERVE_TIME);
+
+        float num;
+
+        if (rightServing)
+        {
+            num = Random.Range(-50f, 50f);
+        }
+        else
+        {
+            num = Random.Range(180f, 230f);
+        }
+
+        transform.rotation = Quaternion.Euler(0f, 0f, num);
+        rb.AddForce(transform.right * initialSpeed);
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
         Vector3 colNormal = collision.GetContact(0).normal;
         float speed = lastVel.magnitude;
-        Vector3 direction = Vector3.Reflect(lastVel.normalized, colNormal) + new Vector3(Random.Range(-INAC_RANGE, INAC_RANGE), Random.Range(-INAC_RANGE, INAC_RANGE), 0f);
-
+        Vector3 direction = Vector3.Reflect(lastVel.normalized, colNormal);
         rb.velocity = direction * speed;
 
         if (collision.collider.CompareTag("Paddle"))
         {
-            rb.velocity *= 1.05f;
+            rb.velocity *= 1.1f;
         }
 
         AudioSource.PlayClipAtPoint(clips[0], new Vector3(0f, 0f, -10f));
@@ -63,12 +77,12 @@ public class Ball : MonoBehaviour
         if (other.name == "Goal1")
         {
             AudioSource.PlayClipAtPoint(clips[1], new Vector3(0f, 0f, -10f));
-            Debug.Log("goal for left!");
+            StartCoroutine(gameManager.TeamScore("Blue"));
         }
         else if (other.name == "Goal2")
         {
             AudioSource.PlayClipAtPoint(clips[1], new Vector3(0f, 0f, -10f));
-            Debug.Log("goal for right!");
+            StartCoroutine(gameManager.TeamScore("Red"));
         }
     }
 }

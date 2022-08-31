@@ -12,6 +12,7 @@ public class Ball : MonoBehaviour
 
     #region Variables
 
+    [HideInInspector]
     public bool rightServing = true;
 
     private Rigidbody rb;
@@ -53,8 +54,9 @@ public class Ball : MonoBehaviour
             num = Random.Range(180f, 230f);
         }
 
-        transform.rotation = Quaternion.Euler(0f, 0f, num);
-        rb.AddForce(transform.right * initialSpeed);
+        transform.rotation = Quaternion.Euler(num, transform.eulerAngles.y, 0f);
+        rb.AddForce(transform.forward * initialSpeed);
+        //transform.rotation = Quaternion.LookRotation(rb.velocity);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -63,7 +65,9 @@ public class Ball : MonoBehaviour
         float speed = lastVel.magnitude;
         Vector3 direction = Vector3.Reflect(lastVel.normalized, colNormal);
         rb.velocity = direction * speed;
-
+        transform.rotation = Quaternion.LookRotation(rb.velocity);
+        transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x + Random.Range(-10f, 10f), transform.rotation.eulerAngles.y, 0f) ;
+        
         if (collision.collider.CompareTag("Paddle"))
         {
             rb.velocity *= 1.1f;

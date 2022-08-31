@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PaddleAI : MonoBehaviour
@@ -7,16 +8,19 @@ public class PaddleAI : MonoBehaviour
     private const float MAX_HEIGHT = 13f;
     private const float PADDLE_SPEED = 12f;
 
-
     #endregion
 
     #region Variables
 
-    public static float difficulty = 0.75f; // 0.5f = baby; 0.75f = easy; 1f = normal; 1.5f = hard;
+    private static float difficulty = 1.25f; // 0.5f = baby; 0.75f = easy; 1f = normal; 1.25f = hard;
+    [HideInInspector]
     public bool scored = false;
 
     private Transform ball;
 
+    [SerializeField]
+    private bool shouldWait = true;
+    private bool pause = false;
 
     #endregion
 
@@ -27,7 +31,7 @@ public class PaddleAI : MonoBehaviour
 
     private void Update()
     {
-        if (!scored)
+        if (!scored && !pause)
         {
             AIMovement();
         }
@@ -55,4 +59,37 @@ public class PaddleAI : MonoBehaviour
         ball = FindObjectOfType<Ball>().transform;
         scored = false;
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.collider.CompareTag("Ball") && shouldWait)
+        {
+            pause = true;
+            StartCoroutine(PauseMovement());
+        }
+    }
+
+    private IEnumerator PauseMovement()
+    {
+        yield return new WaitForSeconds(0.75f / difficulty);
+        //yield return new WaitUntil(() => ball.position.x < (0f + difficulty * 2f));
+        pause = false;
+    }
+
+    /// <summary>
+    /// Set difficulty of AI
+    /// </summary>
+    /// <param name="request">Can be: "very easy", "easy", "normal", or "hard"</param>
+    public static void SetDifficulty(string request)
+    {
+        difficulty = request switch
+        {
+            "very easy" => 0.5f,
+            "easy" => 0.75f,
+            "normal" => 1f,
+            "hard" => 1.3f,
+            _ => throw new System.Exception("Invalid difficulty input"),
+        };
+    }
+    
 }

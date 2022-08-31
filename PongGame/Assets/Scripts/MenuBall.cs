@@ -1,8 +1,8 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))]
-public class Ball : MonoBehaviour
+public class MenuBall : MonoBehaviour
 {
     #region Constants
 
@@ -31,7 +31,6 @@ public class Ball : MonoBehaviour
 
     private void Awake()
     {
-        gameManager = FindObjectOfType<GameManager>();
         rb = GetComponent<Rigidbody>();
 
         StartCoroutine(ServeBall());
@@ -58,7 +57,6 @@ public class Ball : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(num, transform.eulerAngles.y, 0f);
         rb.AddForce(transform.forward * initialSpeed);
-        //transform.rotation = Quaternion.LookRotation(rb.velocity);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -70,28 +68,23 @@ public class Ball : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(rb.velocity);
         if (BOUNCE_INACCURACY)
         {
-            transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x + Random.Range(-INAC_OFFSET, INAC_OFFSET), transform.rotation.eulerAngles.y, 0f) ;
+            transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x + Random.Range(-INAC_OFFSET, INAC_OFFSET), transform.rotation.eulerAngles.y, 0f);
+            rb.velocity = transform.forward * speed;
         }
-        
-        if (collision.collider.CompareTag("Paddle"))
-        {
-            rb.velocity *= 1.1f;
-        }
+        rb.velocity *= 1.1f;
 
         AudioSource.PlayClipAtPoint(clips[0], new Vector3(0f, 0f, -10f));
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.name == "Goal1")
+        if (other.name == "Goal")
         {
+            rb.velocity = Vector3.zero;
+            rb.rotation = Quaternion.Euler(0f, transform.eulerAngles.y, 0f);
+            rb.position = Vector3.zero;
             AudioSource.PlayClipAtPoint(clips[1], new Vector3(0f, 0f, -10f));
-            StartCoroutine(gameManager.TeamScore("Blue"));
-        }
-        else if (other.name == "Goal2")
-        {
-            AudioSource.PlayClipAtPoint(clips[1], new Vector3(0f, 0f, -10f));
-            StartCoroutine(gameManager.TeamScore("Red"));
+            StartCoroutine(ServeBall());
         }
     }
 }

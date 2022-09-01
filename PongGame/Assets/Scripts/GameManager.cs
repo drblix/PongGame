@@ -12,6 +12,8 @@ public class GameManager : MonoBehaviour
 
     #region Variables
 
+    public static string mode = "AI";
+
     private int redScore = 0;
     private int blueScore = 0;
 
@@ -30,6 +32,18 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         paddleAI = FindObjectOfType<PaddleAI>();
+
+        if (mode == "AI")
+        {
+            foreach (Paddle p in FindObjectsOfType<Paddle>())
+            {
+                if (p.TryGetComponent(out PaddleAI pAi))
+                {
+                    pAi.enabled = true;
+                    p.GetComponent<Paddle>().enabled = false;
+                }
+            }
+        }
     }
 
     public IEnumerator TeamScore(string name)

@@ -14,13 +14,11 @@ public class MenuBall : MonoBehaviour
 
     #region Variables
 
-    [HideInInspector]
-    public bool rightServing = true;
+    public bool rightServing = false;
 
     private Rigidbody rb;
-    private GameManager gameManager;
 
-    private float initialSpeed = 500f;
+    private readonly float initialSpeed = 500f;
 
     [SerializeField]
     private AudioClip[] clips;
@@ -52,7 +50,7 @@ public class MenuBall : MonoBehaviour
         }
         else
         {
-            num = Random.Range(180f, 230f);
+            num = Random.Range(150f, 230f);
         }
 
         transform.rotation = Quaternion.Euler(num, transform.eulerAngles.y, 0f);
@@ -66,24 +64,39 @@ public class MenuBall : MonoBehaviour
         Vector3 direction = Vector3.Reflect(lastVel.normalized, colNormal);
         rb.velocity = direction * speed;
         transform.rotation = Quaternion.LookRotation(rb.velocity);
+
         if (BOUNCE_INACCURACY)
         {
             transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x + Random.Range(-INAC_OFFSET, INAC_OFFSET), transform.rotation.eulerAngles.y, 0f);
             rb.velocity = transform.forward * speed;
         }
-        rb.velocity *= 1.1f;
+
+        if (collision.collider.CompareTag("Paddle"))
+        {
+            rb.velocity *= 1.1f;
+        }
 
         AudioSource.PlayClipAtPoint(clips[0], new Vector3(0f, 0f, -10f));
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.name == "Goal")
+        if (other.name.Contains("Goal"))
         {
             rb.velocity = Vector3.zero;
             rb.rotation = Quaternion.Euler(0f, transform.eulerAngles.y, 0f);
             rb.position = Vector3.zero;
             AudioSource.PlayClipAtPoint(clips[1], new Vector3(0f, 0f, -10f));
+
+            if (other.name == "Goal1")
+            {
+                rightServing = false;
+            }
+            else
+            {
+                rightServing = true;
+            }
+
             StartCoroutine(ServeBall());
         }
     }

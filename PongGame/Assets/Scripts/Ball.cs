@@ -68,6 +68,7 @@ public class Ball : MonoBehaviour
         Vector3 direction = Vector3.Reflect(lastVel.normalized, colNormal);
         rb.velocity = direction * speed;
         transform.rotation = Quaternion.LookRotation(rb.velocity);
+
         if (BOUNCE_INACCURACY)
         {
             transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x + Random.Range(-INAC_OFFSET, INAC_OFFSET), transform.rotation.eulerAngles.y, 0f) ;

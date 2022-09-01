@@ -35,10 +35,9 @@ public class MenuPaddle : MonoBehaviour
 
     private void AIMovement()
     {
-        float ballDistanceX = transform.position.x - ball.position.x;
-        float ballAngle = ball.eulerAngles.x;
-        float futureY = Mathf.Sin(ballAngle) * ballDistanceX / Mathf.Sin(180f - (ballAngle + 90));
-        Debug.Log(futureY);
+        //float ballAngle = ball.eulerAngles.x * Mathf.Deg2Rad;
+        //float angleTwo = (180f - (ballAngle + 90f)) * Mathf.Deg2Rad;
+        //float futureY = Mathf.Sin(ballAngle) * ballDistX / Mathf.Sin(angleTwo);
 
         float ballY = ball.position.y;
         ballY = Mathf.Clamp(ballY, -3f, 5f);
@@ -64,7 +63,7 @@ public class MenuPaddle : MonoBehaviour
     private IEnumerator Pause()
     {
         pause = true;
-        yield return new WaitForSeconds(.5f);
+        yield return new WaitUntil(() => Mathf.Abs(transform.position.x - ball.position.x) > 6f);
         pause = false;
     }
 }

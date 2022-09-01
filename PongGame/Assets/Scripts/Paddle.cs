@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(PlayerInput))]
 public class Paddle : MonoBehaviour
@@ -30,6 +31,11 @@ public class Paddle : MonoBehaviour
     private void Update()
     {
         Movement();
+
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            SceneManager.LoadScene(0);
+        }
     }
 
     private void Movement()

@@ -14,6 +14,8 @@ public class MenuPaddle : MonoBehaviour
 
     private Transform ball;
     private bool pause = false;
+    [SerializeField]
+    private bool rightSide;
 
     #endregion
 
@@ -39,16 +41,19 @@ public class MenuPaddle : MonoBehaviour
         //float ballAngle = ball.eulerAngles.x * Mathf.Deg2Rad;
         //float angleTwo = (180f - (ballAngle + 90f)) * Mathf.Deg2Rad;
         //float futureY = Mathf.Sin(ballAngle) * ballDistX / Mathf.Sin(angleTwo);
+        //float ballY = ball.position.y;
+        //ballY = Mathf.Clamp(ballY, -3f, 5f);
 
-        float ballY = ball.position.y;
-        ballY = Mathf.Clamp(ballY, -3f, 5f);
+        float futureY = CalculateFutureY();
+        futureY = Mathf.Clamp(futureY, -3f, 5f);
+
 
         
-        if (transform.position.y > (ballY + POS_OFFSET))
+        if (transform.position.y > (futureY + POS_OFFSET))
         {
             transform.Translate(PADDLE_SPEED * Time.deltaTime * Vector3.down);
         }
-        else if (transform.position.y < (ballY - POS_OFFSET))
+        else if (transform.position.y < (futureY - POS_OFFSET))
         {
             transform.Translate(PADDLE_SPEED * Time.deltaTime * Vector3.up);
         }
@@ -68,4 +73,20 @@ public class MenuPaddle : MonoBehaviour
     //    yield return new WaitUntil(() => Mathf.Abs(transform.position.x - ball.position.x) > 6f);
     //    pause = false;
     //}
+
+    private float CalculateFutureY()
+    {
+        float distX = transform.position.x - ball.position.x;
+        float angleApproach = (180f - (180f - ball.eulerAngles.x)) * Mathf.Deg2Rad;
+        float y;
+        if (rightSide)
+        {
+            y = -(Mathf.Tan(angleApproach) * distX) + ball.position.y;
+        }
+        else
+        {
+            y = (Mathf.Tan(angleApproach) * distX) + ball.position.y;
+        }
+        return y;
+    }
 }

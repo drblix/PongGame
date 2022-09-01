@@ -33,7 +33,7 @@ Transform:
   m_Children:
   - {fileID: 3751340084607548479}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!135 &3751340084289891521
 SphereCollider:
@@ -76,6 +76,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9af5ffc1377b7d543b5e42d6b2e0d72d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  approachingY: 0
   rightServing: 1
   clips:
   - {fileID: 8300000, guid: 63a2a9bddaae46c46bc55615e89ca9ff, type: 3}
@@ -107,8 +108,8 @@ Transform:
   m_GameObject: {fileID: 3751340084607548478}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 50, y: 50, z: 50}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 3751340084289891520}
   m_RootOrder: -1
@@ -120,7 +121,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3751340084607548478}
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 2540817853737639666, guid: dc4b1cf6c7554524ca2c54fbc98d1ea7, type: 3}
 --- !u!23 &3751340084607548477
 MeshRenderer:
   m_ObjectHideFlags: 0

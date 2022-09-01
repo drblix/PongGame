@@ -1,18 +1,14 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    #region Constants
-
-    private const int WINNING_SCORE = 5;
-
-    #endregion
-
     #region Variables
 
     public static string mode = "AI";
+    public static int winningScore = 5;
 
     private int redScore = 0;
     private int blueScore = 0;
@@ -26,6 +22,9 @@ public class GameManager : MonoBehaviour
     private TextMeshProUGUI score;
     [SerializeField]
     private TextMeshProUGUI scoreNoti;
+
+    [SerializeField]
+    private AudioSource source;
 
     #endregion
 
@@ -41,6 +40,18 @@ public class GameManager : MonoBehaviour
                 {
                     pAi.enabled = true;
                     p.GetComponent<Paddle>().enabled = false;
+                }
+            }
+        }
+        else
+        {
+            foreach (Paddle p in FindObjectsOfType<Paddle>())
+            {
+                p.enabled = true;
+
+                if (p.TryGetComponent(out PaddleAI pAi))
+                {
+                    pAi.enabled = false;
                 }
             }
         }
@@ -75,12 +86,29 @@ public class GameManager : MonoBehaviour
         }
 
         paddleAI.scored = true;
-        if (redScore >= WINNING_SCORE || blueScore >= WINNING_SCORE)
+
+        if (redScore >= winningScore || blueScore >= winningScore)
         {
+            FindObjectOfType<Ball>().transform.GetChild(0).GetComponent<MeshRenderer>().enabled = false;
             scoreNoti.SetText(name + " WINS!");
-            yield return new WaitForSeconds(3f);
-            scoreNoti.gameObject.SetActive(false);
-            GameReset(name);
+
+            if (name == "Red")
+            {
+                scoreNoti.color = Color.red;
+            }
+            else
+            {
+                scoreNoti.color = Color.blue;
+            }
+
+            for (int i = 0; i < 5; i++)
+            {
+                scoreNoti.gameObject.SetActive(!scoreNoti.gameObject.activeInHierarchy);
+                source.Play();
+                yield return new WaitForSeconds(1f);
+            }
+
+            SceneManager.LoadScene(0);
         }
         else
         {
@@ -114,15 +142,5 @@ public class GameManager : MonoBehaviour
         }
 
         paddleAI.RoundReset();
-    }
-
-    private void GameReset(string name)
-    {
-        redScore = 0;
-        blueScore = 0;
-        score.SetText(redScore.ToString() + " | " + blueScore.ToString());
-        score.color = Color.white;
-
-        ResetRound(name);
     }
 }

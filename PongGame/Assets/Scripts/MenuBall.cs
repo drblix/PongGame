@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MenuBall : MonoBehaviour
@@ -24,6 +23,7 @@ public class MenuBall : MonoBehaviour
     private AudioClip[] clips;
 
     private Vector3 lastVel;
+    private bool isServing = true;
 
     #endregion
 
@@ -32,6 +32,7 @@ public class MenuBall : MonoBehaviour
         rb = GetComponent<Rigidbody>();
 
         StartCoroutine(ServeBall());
+        StartCoroutine(FailSafe());
     }
     private void Update()
     {
@@ -40,6 +41,8 @@ public class MenuBall : MonoBehaviour
 
     private IEnumerator ServeBall()
     {
+        isServing = true;
+        transform.position = Vector3.up * 2f;
         yield return new WaitForSeconds(SERVE_TIME);
 
         float num;
@@ -55,6 +58,7 @@ public class MenuBall : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(num, transform.eulerAngles.y, 0f);
         rb.AddForce(transform.forward * initialSpeed);
+        isServing = false;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -98,6 +102,19 @@ public class MenuBall : MonoBehaviour
             }
 
             StartCoroutine(ServeBall());
+        }
+    }
+
+    private IEnumerator FailSafe()
+    {
+        while (true)
+        {
+            if ((rb.velocity == Vector3.zero && !isServing) || (transform.position.x >= 100f && !isServing) || transform.position.x <= -100f && !isServing)
+            {
+                Debug.Log(rb.velocity);
+                StartCoroutine(ServeBall());
+            }
+            yield return new WaitForSeconds(2f);
         }
     }
 }

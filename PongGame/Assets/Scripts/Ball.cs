@@ -108,7 +108,7 @@ public class Ball : MonoBehaviour
         Transform aiPaddle = FindObjectOfType<PaddleAI>().transform;
 
         float distX = aiPaddle.position.x - transform.position.x;
-        Debug.Log(180f - (180f - transform.eulerAngles.x));
+        //Debug.Log(180f - (180f - transform.eulerAngles.x));
         float angleApproach = transform.eulerAngles.x * Mathf.Deg2Rad;
         float thirdAngle = 180f - (distX + 90) * Mathf.Deg2Rad;
         float futureY = -(Mathf.Sin(angleApproach) * distX / Mathf.Sin(thirdAngle));

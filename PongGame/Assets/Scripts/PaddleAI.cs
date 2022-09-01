@@ -13,7 +13,7 @@ public class PaddleAI : MonoBehaviour
 
     #region Variables
 
-    private static float difficulty = 1.25f; // 0.5f = baby; 0.75f = easy; 1f = normal; 1.25f = hard;
+    private static float difficulty = 1.2f; // 0.5f = baby; 0.75f = easy; 1f = normal; 1.2f = hard;
     
     [HideInInspector]
     public bool scored = false;
@@ -24,6 +24,8 @@ public class PaddleAI : MonoBehaviour
     [SerializeField]
     private bool shouldWait = true;
     private bool pause = false;
+
+    private static bool useAdvancedTracking = true;
 
     #endregion
 
@@ -39,7 +41,6 @@ public class PaddleAI : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log(ballScript.approachingY);
         if (!scored && !pause)
         {
             AIMovement();
@@ -48,16 +49,26 @@ public class PaddleAI : MonoBehaviour
 
     private void AIMovement()
     {
+        float futureY;
+        if (useAdvancedTracking)
+        {
+            futureY = CalculateFutureY();
+        }
+        else
+        {
+            futureY = ball.position.y;
+        }
+
+        futureY = Mathf.Clamp(futureY, -MAX_HEIGHT, MAX_HEIGHT);
+
         //float futureY = ballScript.approachingY;
         //futureY = Mathf.Clamp(futureY, -MAX_HEIGHT, MAX_HEIGHT);
-        float ballY = ball.position.y;
-        ballY = Mathf.Clamp(ballY, -MAX_HEIGHT, MAX_HEIGHT);
 
-        if (transform.position.y > (ballY + POS_OFFSET))
+        if (transform.position.y > (futureY + POS_OFFSET))
         {
             transform.Translate(PADDLE_SPEED * Time.deltaTime * (Vector3.down * difficulty));
         }
-        else if (transform.position.y < (ballY - POS_OFFSET))
+        else if (transform.position.y < (futureY - POS_OFFSET))
         {
             transform.Translate(PADDLE_SPEED * Time.deltaTime * (Vector3.up * difficulty));
         }
@@ -97,18 +108,25 @@ public class PaddleAI : MonoBehaviour
             "very easy" => 0.5f,
             "easy" => 0.75f,
             "normal" => 1f,
-            "hard" => 1.3f,
+            "hard" => 1.2f,
             _ => throw new System.Exception("Invalid difficulty input"),
+        };
+
+        useAdvancedTracking = request switch
+        {
+            "normal" => true,
+            "hard" => true,
+            _ => false,
         };
     }
     
     private float CalculateFutureY()
     {
         float distX = transform.position.x - ball.position.x;
-        float angleApproach = ball.eulerAngles.x * Mathf.Deg2Rad;
-        float thirdAngle = 180f - (distX + 90) * Mathf.Deg2Rad;
-        float futureY = -(Mathf.Sin(angleApproach) * distX / Mathf.Sin(thirdAngle));
-        return futureY;
+        float angleApproach = (180f - (180f - ball.eulerAngles.x)) * Mathf.Deg2Rad;
+        // honestly no clue why I have to add the ball's y-position here, but it worked :P
+        float y = -(Mathf.Tan(angleApproach) * distX) + ball.position.y;
+        return y;
     }
-    
+
 }

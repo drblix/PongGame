@@ -14,6 +14,8 @@ public class Ball : MonoBehaviour
 
     #region Variables
 
+    public float approachingY = 0f;
+
     [HideInInspector]
     public bool rightServing = true;
 
@@ -39,6 +41,9 @@ public class Ball : MonoBehaviour
     private void Update()
     {
         lastVel = rb.velocity;
+
+        //Vector3 prediction = new Vector3(transform.position.x, transform.position.y, 0f) + rb.velocity * 1.2f;
+        //approachingY = prediction.y;
     }
 
     private IEnumerator ServeBall()
@@ -59,6 +64,7 @@ public class Ball : MonoBehaviour
         transform.rotation = Quaternion.Euler(num, transform.eulerAngles.y, 0f);
         rb.AddForce(transform.forward * initialSpeed);
         //transform.rotation = Quaternion.LookRotation(rb.velocity);
+        CalculateFutureY();
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -79,6 +85,7 @@ public class Ball : MonoBehaviour
             rb.velocity *= 1.1f;
         }
 
+        CalculateFutureY();
         AudioSource.PlayClipAtPoint(clips[0], new Vector3(0f, 0f, -10f));
     }
 
@@ -94,5 +101,17 @@ public class Ball : MonoBehaviour
             AudioSource.PlayClipAtPoint(clips[1], new Vector3(0f, 0f, -10f));
             StartCoroutine(gameManager.TeamScore("Red"));
         }
+    }
+
+    private void CalculateFutureY()
+    {
+        Transform aiPaddle = FindObjectOfType<PaddleAI>().transform;
+
+        float distX = aiPaddle.position.x - transform.position.x;
+        Debug.Log(180f - (180f - transform.eulerAngles.x));
+        float angleApproach = transform.eulerAngles.x * Mathf.Deg2Rad;
+        float thirdAngle = 180f - (distX + 90) * Mathf.Deg2Rad;
+        float futureY = -(Mathf.Sin(angleApproach) * distX / Mathf.Sin(thirdAngle));
+        approachingY = futureY;
     }
 }

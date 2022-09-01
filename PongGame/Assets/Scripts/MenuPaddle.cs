@@ -6,6 +6,7 @@ public class MenuPaddle : MonoBehaviour
     #region Constants
 
     private const float PADDLE_SPEED = 8f;
+    private const float POS_OFFSET = .4f;
 
     #endregion
 
@@ -42,28 +43,29 @@ public class MenuPaddle : MonoBehaviour
         float ballY = ball.position.y;
         ballY = Mathf.Clamp(ballY, -3f, 5f);
 
-        if (transform.position.y > ballY)
+        
+        if (transform.position.y > (ballY + POS_OFFSET))
         {
             transform.Translate(PADDLE_SPEED * Time.deltaTime * Vector3.down);
         }
-        else
+        else if (transform.position.y < (ballY - POS_OFFSET))
         {
             transform.Translate(PADDLE_SPEED * Time.deltaTime * Vector3.up);
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.collider.name == "Ball")
-        {
-            StartCoroutine(Pause());
-        }
-    }
+    //private void OnCollisionEnter(Collision collision)
+    //{
+    //    if (collision.collider.name == "Ball")
+    //    {
+    //        StartCoroutine(Pause());
+    //    }
+    //}
 
-    private IEnumerator Pause()
-    {
-        pause = true;
-        yield return new WaitUntil(() => Mathf.Abs(transform.position.x - ball.position.x) > 6f);
-        pause = false;
-    }
+    //private IEnumerator Pause()
+    //{
+    //    pause = true;
+    //    yield return new WaitUntil(() => Mathf.Abs(transform.position.x - ball.position.x) > 6f);
+    //    pause = false;
+    //}
 }

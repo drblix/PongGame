@@ -7,15 +7,18 @@ public class PaddleAI : MonoBehaviour
 
     private const float MAX_HEIGHT = 13f;
     private const float PADDLE_SPEED = 12f;
+    private const float POS_OFFSET = 0.2f;
 
     #endregion
 
     #region Variables
 
     private static float difficulty = 1.25f; // 0.5f = baby; 0.75f = easy; 1f = normal; 1.25f = hard;
+    
     [HideInInspector]
     public bool scored = false;
 
+    private Ball ballScript;
     private Transform ball;
 
     [SerializeField]
@@ -24,13 +27,19 @@ public class PaddleAI : MonoBehaviour
 
     #endregion
 
+    // predict future y-value formula:
+    // let x = ball's current angle of approach; let y = ball's distance from paddle (x)
+    // sin x * y / sin (180 - (x + 90))
+
     private void Awake()
     {
-        ball = FindObjectOfType<Ball>().transform;
+        ballScript = FindObjectOfType<Ball>();
+        ball = ballScript.transform;
     }
 
     private void Update()
     {
+        Debug.Log(ballScript.approachingY);
         if (!scored && !pause)
         {
             AIMovement();
@@ -39,24 +48,25 @@ public class PaddleAI : MonoBehaviour
 
     private void AIMovement()
     {
+        //float futureY = ballScript.approachingY;
+        //futureY = Mathf.Clamp(futureY, -MAX_HEIGHT, MAX_HEIGHT);
         float ballY = ball.position.y;
         ballY = Mathf.Clamp(ballY, -MAX_HEIGHT, MAX_HEIGHT);
 
-        if (transform.position.y > ballY)
+        if (transform.position.y > (ballY + POS_OFFSET))
         {
             transform.Translate(PADDLE_SPEED * Time.deltaTime * (Vector3.down * difficulty));
         }
-        else
+        else if (transform.position.y < (ballY - POS_OFFSET))
         {
             transform.Translate(PADDLE_SPEED * Time.deltaTime * (Vector3.up * difficulty));
         }
-
-        //transform.position = new(transform.position.x, ballY, 0f);
     }
 
     public void RoundReset()
     {
-        ball = FindObjectOfType<Ball>().transform;
+        ballScript = FindObjectOfType<Ball>();
+        ball = ballScript.transform;
         scored = false;
     }
 
@@ -90,6 +100,15 @@ public class PaddleAI : MonoBehaviour
             "hard" => 1.3f,
             _ => throw new System.Exception("Invalid difficulty input"),
         };
+    }
+    
+    private float CalculateFutureY()
+    {
+        float distX = transform.position.x - ball.position.x;
+        float angleApproach = ball.eulerAngles.x * Mathf.Deg2Rad;
+        float thirdAngle = 180f - (distX + 90) * Mathf.Deg2Rad;
+        float futureY = -(Mathf.Sin(angleApproach) * distX / Mathf.Sin(thirdAngle));
+        return futureY;
     }
     
 }

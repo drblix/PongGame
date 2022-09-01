@@ -106,11 +106,11 @@ public class GameManager : MonoBehaviour
 
         if (winner == "Red")
         {
-            newBall.GetComponent<Ball>().rightServing = true;
+            newBall.GetComponent<Ball>().rightServing = false;
         }
         else
         {
-            newBall.GetComponent<Ball>().rightServing = false;
+            newBall.GetComponent<Ball>().rightServing = true;
         }
 
         paddleAI.RoundReset();

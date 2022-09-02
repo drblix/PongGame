@@ -29,6 +29,7 @@ public class MainMenu : MonoBehaviour
         main = transform.Find("Main").GetComponent<RectTransform>();
         aiPage = transform.Find("AIPage").GetComponent<RectTransform>();
         PaddleAI.SetDifficulty("normal");
+        GameManager.winningScore = chosenScore;
         toScore.SetText(chosenScore.ToString());
     }
 
